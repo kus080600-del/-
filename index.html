@@ -2,82 +2,137 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌈 365天多巴胺存錢挑戰 (音效版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>365天存錢大挑戰</title>
     <style>
-        /* CSS 部分保持多巴胺風格 */
         :root {
             --pink: #FF6AD5; --yellow: #FFEA00; --cyan: #00E5FF;
             --purple: #9262FF; --green: #69FFB4; --dark: #2D3436; --bg: #FFF9FB;
         }
-        * { box-sizing: border-box; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
-        body { background-color: var(--bg); display: flex; justify-content: center; padding: 20px; }
-        .main-container {
-            background: white; width: 100%; max-width: 500px; border: 6px solid var(--dark);
-            border-radius: 40px; padding: 25px; box-shadow: 15px 15px 0px var(--pink);
+        * { box-sizing: border-box; font-family: 'PingFang TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+
+        .app-container {
+            background: white; width: 100%; max-width: 414px; min-height: 95vh;
+            border: 5px solid var(--dark); border-radius: 40px; padding: 20px;
+            box-shadow: 10px 10px 0px var(--pink); position: relative;
         }
-        .header h1 { text-align: center; font-size: 2rem; color: var(--purple); text-shadow: 3px 3px 0px var(--yellow); margin: 0 0 20px 0; }
-        .config-card { background: #fdfdfd; border: 4px solid var(--dark); border-radius: 20px; padding: 15px; margin-bottom: 25px; }
-        .input-row { display: flex; align-items: center; margin: 10px 0; font-weight: bold; }
-        input { border: none; border-bottom: 3px dashed var(--pink); flex: 1; padding: 5px; font-size: 1.1rem; outline: none; background: transparent; }
-        .stats { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
-        .bar-container { height: 40px; background: #eee; border: 4px solid var(--dark); border-radius: 20px; overflow: hidden; position: relative; }
-        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow), var(--pink)); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .percent-label { position: absolute; width: 100%; text-align: center; top: 6px; font-weight: 900; font-size: 1.2rem; }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .cell { aspect-ratio: 1; background: white; border: 2px solid var(--dark); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .cell:hover { transform: scale(1.1) rotate(3deg); background: var(--yellow); }
-        .cell.done { border-color: transparent; color: white; cursor: default; box-shadow: inset 3px 3px rgba(0,0,0,0.15); }
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .draw-card { background: white; width: 320px; padding: 30px; border-radius: 40px; border: 6px solid var(--dark); text-align: center; animation: cardIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes cardIn { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0); } }
-        .amt-display { font-size: 5rem; font-weight: 900; color: var(--pink); margin: 15px 0; text-shadow: 4px 4px 0px var(--yellow); }
-        .card-quote { font-style: italic; color: #555; margin-bottom: 20px; line-height: 1.5; border-top: 2px solid #eee; padding-top: 15px; }
-        .card-tip { background: #F0F7FF; padding: 12px; border-radius: 15px; font-size: 0.9rem; color: #333; border: 2px dashed var(--cyan); }
-        .btn-confirm { margin-top: 25px; width: 100%; padding: 15px; background: var(--green); border: 4px solid var(--dark); border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 6px 6px 0px var(--dark); }
-        .btn-confirm:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px var(--dark); }
+
+        /* 標題名稱修改 */
+        h1 { 
+            text-align: center; font-size: 1.8rem; color: var(--purple); 
+            text-shadow: 3px 3px 0px var(--yellow); margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .milestones { display: flex; justify-content: space-around; margin: 15px 0; background: #f0f0f0; padding: 10px; border-radius: 20px; border: 3px solid var(--dark); }
+        .badge { font-size: 1.3rem; filter: grayscale(1); opacity: 0.2; transition: 0.3s; }
+        .badge.active { filter: grayscale(0); opacity: 1; transform: scale(1.2); }
+
+        .config-card { background: #fafafa; border: 3px solid var(--dark); border-radius: 20px; padding: 12px; margin-bottom: 15px; }
+        .input-row { display: flex; align-items: center; margin: 5px 0; font-weight: bold; font-size: 0.9rem; }
+        input { border: none; border-bottom: 2px dashed var(--pink); flex: 1; padding: 4px; font-size: 1rem; outline: none; background: transparent; }
+
+        .progress-section { margin-bottom: 15px; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; }
+        .bar-container { height: 30px; background: #eee; border: 3px solid var(--dark); border-radius: 15px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow)); transition: 0.5s ease; }
+        .percent-label { position: absolute; width: 100%; text-align: center; top: 4px; font-weight: 900; font-size: 1rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 30px; }
+        .cell { aspect-ratio: 1; background: white; border: 1.5px solid var(--dark); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; cursor: pointer; }
+        .cell.done { border: none; color: white; box-shadow: inset 2px 2px rgba(0,0,0,0.1); }
+
+        .reset-container { text-align: center; margin-top: 20px; padding-bottom: 20px; }
+        .btn-reset { background: #ff4757; color: white; border: 3px solid var(--dark); padding: 8px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; box-shadow: 3px 3px 0px var(--dark); }
+
+        /* 卡片晃動動畫 */
+        @keyframes wobble-stop {
+            0% { transform: scale(0.3) rotate(-20deg); }
+            20% { transform: scale(1.1) rotate(15deg); }
+            40% { transform: scale(0.9) rotate(-10deg); }
+            60% { transform: scale(1.05) rotate(5deg); }
+            80% { transform: scale(0.98) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .draw-card { 
+            background: white; width: 85%; max-width: 300px; padding: 25px; 
+            border-radius: 35px; border: 6px solid var(--dark); text-align: center;
+            animation: wobble-stop 0.6s ease-out forwards; /* 晃動動畫應用 */
+        }
+
+        .amt-display { font-size: 4rem; font-weight: 900; color: var(--pink); margin: 10px 0; text-shadow: 3px 3px var(--yellow); }
+        .btn-confirm { width: 100%; padding: 15px; background: var(--green); border: 4px solid var(--dark); border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px var(--dark); font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <div class="header"><h1>🌈 365天存錢挑戰</h1></div>
+<div class="app-container">
+    <h1>365天存錢大挑戰</h1>
+    
+    <div class="milestones">
+        <span class="badge" id="m10">🥉</span>
+        <span class="badge" id="m50">🥈</span>
+        <span class="badge" id="m100">🥇</span>
+        <span class="badge" id="m200">💎</span>
+        <span class="badge" id="m365">👑</span>
+    </div>
+
     <div class="config-card">
-        <div class="input-row"><label>🎈 願望：</label><input type="text" id="wishText" placeholder="寫下你的目標..." oninput="saveSettings()"></div>
-        <div class="input-row"><label>🎯 目標：</label><input type="number" id="targetAmt" value="10000" oninput="saveSettings()"><span>元</span></div>
+        <div class="input-row"><label>🎈願望:</label><input type="text" id="wishText" placeholder="寫下目標..." oninput="saveSettings()"></div>
+        <div class="input-row"><label>💰金額:</label><input type="number" id="targetAmt" placeholder="總金額目標" oninput="saveSettings()"></div>
     </div>
+
     <div class="progress-section">
-        <div class="stats"><span>累積: $<span id="currentTotal">0</span></span><span id="dayCount">已達成: 0/365</span></div>
-        <div class="bar-container"><div class="bar-fill" id="progressBar"></div><div class="percent-label" id="progressPercent">0%</div></div>
+        <div class="stats">
+            <span>累積: $<span id="currentTotal">0</span></span>
+            <span id="dayCount">0/365</span>
+        </div>
+        <div class="bar-container">
+            <div class="bar-fill" id="progressBar"></div>
+            <div class="percent-label" id="progressPercent">0%</div>
+        </div>
     </div>
+
     <div class="grid" id="gridContainer"></div>
+
+    <div class="reset-container">
+        <button class="btn-reset" onclick="resetPlan()">🔄 重啟計畫案</button>
+    </div>
 </div>
 
 <div id="modal">
     <div class="draw-card">
-        <div style="font-size: 1.1rem; font-weight: bold; color: var(--purple);">✨ 今日挑戰金額 ✨</div>
-        <div class="amt-display" id="modalAmt">$0</div>
-        <div class="card-quote" id="modalQuote">"語錄讀取中..."</div>
-        <div class="card-tip" id="modalTip">💡 開運小撇步</div>
-        <button class="btn-confirm" onclick="confirmDraw()">存入錢包並紀錄！</button>
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--purple);">✨ 今日抽中金額 ✨</div>
+        <div id="modalAmt" class="amt-display">$0</div>
+        <div id="modalQuote" style="font-size:0.9rem; margin-bottom:15px; font-style:italic; color:#555;"></div>
+        <div id="modalTip" style="font-size:0.8rem; color:#333; background:#FFF9C4; padding:8px; border-radius:15px; border: 2px dashed var(--pink); margin-bottom:20px;"></div>
+        <button class="btn-confirm" onclick="confirmDraw()">存入錢包紀錄！</button>
     </div>
 </div>
 
 <audio id="soundPop" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 <audio id="soundSuccess" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"></audio>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
-    const QUOTES = ["存下的每一塊錢都是未來的自由！", "今天的你，比昨天更富有！", "錢不會消失，只是變成了你喜歡的樣子。", "財富是給有耐心的人的禮物。"];
-    const TIPS = ["穿件亮色的衣服，心情好財運自然來！", "整理一下錢包裡的收據吧。", "對身邊的人微笑，好運會加倍。", "摸摸自己的存錢筒，給它一點力量。"];
     const COLORS = ['#FF6AD5', '#FFEA00', '#00E5FF', '#9262FF', '#69FFB4', '#FF9A3C'];
-
-    let state = { total: 0, count: 0, history: JSON.parse(localStorage.getItem('save365_data')) || {} };
+    const QUOTES = ["累積是強大的力量！", "離目標又近了一步！", "今天也很努力呢！", "好運正朝你走來！", "小錢成就大夢想！"];
+    const TIPS = ["喝杯咖啡獎勵自己", "穿件喜歡的衣服", "清理一下書桌", "跟身邊的人說謝謝", "聽一首輕快的歌"];
+    
+    let state = { total: 0, count: 0, history: JSON.parse(localStorage.getItem('save365_vFinal')) || {} };
     let activeDay = null, activeAmt = 0;
 
     function init() {
         document.getElementById('wishText').value = localStorage.getItem('save365_wish') || "";
-        document.getElementById('targetAmt').value = localStorage.getItem('save365_target') || 10000;
+        document.getElementById('targetAmt').value = localStorage.getItem('save365_target') || "";
+        
         const grid = document.getElementById('gridContainer');
+        grid.innerHTML = '';
+        state.total = 0; state.count = 0;
+
         for (let i = 1; i <= 365; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
@@ -91,6 +146,7 @@
             grid.appendChild(cell);
         }
         updateUI();
+        checkBadges(false);
     }
 
     function openModal(day) {
@@ -100,52 +156,45 @@
         document.getElementById('modalQuote').innerText = `"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"`;
         document.getElementById('modalTip').innerText = `💡 開運貼士：${TIPS[Math.floor(Math.random()*TIPS.length)]}`;
         
-        // 播放驚喜音效
-        document.getElementById('soundPop').currentTime = 0;
-        document.getElementById('soundPop').play();
+        // 重置動畫並顯示
+        const modal = document.getElementById('modal');
+        const card = modal.querySelector('.draw-card');
+        card.style.animation = 'none';
+        card.offsetHeight; /* 觸發重繪 */
+        card.style.animation = null;
         
-        document.getElementById('modal').style.display = 'flex';
+        modal.style.display = 'flex';
+        document.getElementById('soundPop').play().catch(()=>{});
     }
 
     function confirmDraw() {
-        const randomCol = COLORS[Math.floor(Math.random()*COLORS.length)];
-        state.history[activeDay] = { amt: activeAmt, color: randomCol };
+        const col = COLORS[Math.floor(Math.random()*COLORS.length)];
+        state.history[activeDay] = { amt: activeAmt, color: col };
+        localStorage.setItem('save365_vFinal', JSON.stringify(state.history));
+        
         state.total += activeAmt;
         state.count++;
-        localStorage.setItem('save365_data', JSON.stringify(state.history));
-        applyDoneStyle(document.getElementById(`cell-${activeDay}`), activeAmt, randomCol);
+        applyDoneStyle(document.getElementById(`cell-${activeDay}`), activeAmt, col);
         updateUI();
-        
-        // 播放成功音效
-        document.getElementById('soundSuccess').currentTime = 0;
-        document.getElementById('soundSuccess').play();
-        
+        checkBadges(true);
+        document.getElementById('soundSuccess').play().catch(()=>{});
         document.getElementById('modal').style.display = 'none';
     }
 
-    function applyDoneStyle(el, amt, color) {
-        el.classList.add('done');
-        el.style.backgroundColor = color;
-        el.innerText = `$${amt}`;
-        el.onclick = null;
+    function resetPlan() {
+        if (confirm("⚠️ 注意！\n確定要重啟 365天存錢挑戰嗎？\n這將會清除所有紀錄。")) {
+            localStorage.removeItem('save365_vFinal');
+            state.history = {};
+            init();
+        }
     }
 
-    function updateUI() {
-        const target = parseInt(document.getElementById('targetAmt').value) || 1;
-        const percent = Math.min(Math.round((state.total / target) * 100), 100);
-        document.getElementById('progressBar').style.width = percent + '%';
-        document.getElementById('progressPercent').innerText = percent + '%';
-        document.getElementById('currentTotal').innerText = state.total;
-        document.getElementById('dayCount').innerText = `已達成: ${state.count}/365`;
-    }
-
-    function saveSettings() {
-        localStorage.setItem('save365_wish', document.getElementById('wishText').value);
-        localStorage.setItem('save365_target', document.getElementById('targetAmt').value);
-        updateUI();
-    }
-
-    init();
-</script>
-</body>
-</html>
+    function checkBadges(shouldCelebrate) {
+        const milestones = [10, 50, 100, 200, 365];
+        const badgeIds = ['m10', 'm50', 'm100', 'm200', 'm365'];
+        milestones.forEach((m, idx) => {
+            const badge = document.getElementById(badgeIds[idx]);
+            if (state.count >= m) {
+                if (!badge.classList.contains('active')) {
+                    badge.classList.add('active');
+                    if (shouldCelebrate) confetti({ particleCount: 150, spread: 70, origin: { y: 0.
