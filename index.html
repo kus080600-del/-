@@ -9,7 +9,7 @@
             --pink: #FF6AD5; --yellow: #FFEA00; --cyan: #00E5FF;
             --purple: #9262FF; --green: #69FFB4; --dark: #2D3436; --bg: #FFF9FB;
         }
-        * { box-sizing: border-box; font-family: 'PingFang TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; font-family: 'PingFang TC', 'STHeiti', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
 
         .app-container {
@@ -18,11 +18,9 @@
             box-shadow: 10px 10px 0px var(--pink); position: relative;
         }
 
-        /* 標題名稱修改 */
         h1 { 
             text-align: center; font-size: 1.8rem; color: var(--purple); 
             text-shadow: 3px 3px 0px var(--yellow); margin: 10px 0;
-            letter-spacing: 2px;
         }
 
         .milestones { display: flex; justify-content: space-around; margin: 15px 0; background: #f0f0f0; padding: 10px; border-radius: 20px; border: 3px solid var(--dark); }
@@ -39,20 +37,30 @@
         .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow)); transition: 0.5s ease; }
         .percent-label { position: absolute; width: 100%; text-align: center; top: 4px; font-weight: 900; font-size: 1rem; }
 
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 30px; }
-        .cell { aspect-ratio: 1; background: white; border: 1.5px solid var(--dark); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; cursor: pointer; }
+        /* 核心格子區 - 確保有高度 */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 5px; 
+            margin-bottom: 30px; 
+            min-height: 200px;
+        }
+        .cell { 
+            aspect-ratio: 1; background: white; border: 1.5px solid var(--dark); 
+            border-radius: 6px; display: flex; align-items: center; justify-content: center; 
+            font-size: 0.6rem; font-weight: bold; cursor: pointer; 
+        }
         .cell.done { border: none; color: white; box-shadow: inset 2px 2px rgba(0,0,0,0.1); }
 
         .reset-container { text-align: center; margin-top: 20px; padding-bottom: 20px; }
         .btn-reset { background: #ff4757; color: white; border: 3px solid var(--dark); padding: 8px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.8rem; box-shadow: 3px 3px 0px var(--dark); }
 
-        /* 卡片晃動動畫 */
+        /* 晃動動畫 */
         @keyframes wobble-stop {
             0% { transform: scale(0.3) rotate(-20deg); }
             20% { transform: scale(1.1) rotate(15deg); }
             40% { transform: scale(0.9) rotate(-10deg); }
             60% { transform: scale(1.05) rotate(5deg); }
-            80% { transform: scale(0.98) rotate(-2deg); }
             100% { transform: scale(1) rotate(0deg); }
         }
 
@@ -60,8 +68,8 @@
         .draw-card { 
             background: white; width: 85%; max-width: 300px; padding: 25px; 
             border-radius: 35px; border: 6px solid var(--dark); text-align: center;
-            animation: wobble-stop 0.6s ease-out forwards; /* 晃動動畫應用 */
         }
+        .draw-card.animate { animation: wobble-stop 0.6s ease-out forwards; }
 
         .amt-display { font-size: 4rem; font-weight: 900; color: var(--pink); margin: 10px 0; text-shadow: 3px 3px var(--yellow); }
         .btn-confirm { width: 100%; padding: 15px; background: var(--green); border: 4px solid var(--dark); border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0px var(--dark); font-size: 1.1rem; }
@@ -96,7 +104,8 @@
         </div>
     </div>
 
-    <div class="grid" id="gridContainer"></div>
+    <div class="grid" id="gridContainer">
+        </div>
 
     <div class="reset-container">
         <button class="btn-reset" onclick="resetPlan()">🔄 重啟計畫案</button>
@@ -104,7 +113,7 @@
 </div>
 
 <div id="modal">
-    <div class="draw-card">
+    <div class="draw-card" id="cardElement">
         <div style="font-size: 1.1rem; font-weight: bold; color: var(--purple);">✨ 今日抽中金額 ✨</div>
         <div id="modalAmt" class="amt-display">$0</div>
         <div id="modalQuote" style="font-size:0.9rem; margin-bottom:15px; font-style:italic; color:#555;"></div>
@@ -113,38 +122,59 @@
     </div>
 </div>
 
-<audio id="soundPop" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-<audio id="soundSuccess" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"></audio>
+<audio id="soundPop" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+<audio id="soundSuccess" preload="auto" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
 <script>
     const COLORS = ['#FF6AD5', '#FFEA00', '#00E5FF', '#9262FF', '#69FFB4', '#FF9A3C'];
     const QUOTES = ["累積是強大的力量！", "離目標又近了一步！", "今天也很努力呢！", "好運正朝你走來！", "小錢成就大夢想！"];
     const TIPS = ["喝杯咖啡獎勵自己", "穿件喜歡的衣服", "清理一下書桌", "跟身邊的人說謝謝", "聽一首輕快的歌"];
     
-    let state = { total: 0, count: 0, history: JSON.parse(localStorage.getItem('save365_vFinal')) || {} };
+    let state = { total: 0, count: 0, history: {} };
     let activeDay = null, activeAmt = 0;
 
-    function init() {
-        document.getElementById('wishText').value = localStorage.getItem('save365_wish') || "";
-        document.getElementById('targetAmt').value = localStorage.getItem('save365_target') || "";
-        
+    // 1. 先生成格子 (最重要的步驟)
+    function buildGrid() {
         const grid = document.getElementById('gridContainer');
+        if (!grid) return;
         grid.innerHTML = '';
-        state.total = 0; state.count = 0;
+        
+        // 從本地讀取紀錄
+        try {
+            const savedData = localStorage.getItem('save365_vFinal');
+            state.history = savedData ? JSON.parse(savedData) : {};
+        } catch(e) { state.history = {}; }
+
+        state.total = 0;
+        state.count = 0;
 
         for (let i = 1; i <= 365; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
             cell.id = `cell-${i}`;
             cell.innerText = i;
+            
             if (state.history[i]) {
-                applyDoneStyle(cell, state.history[i].amt, state.history[i].color);
-                state.total += state.history[i].amt;
+                const data = state.history[i];
+                cell.classList.add('done');
+                cell.style.backgroundColor = data.color;
+                cell.innerText = `$${data.amt}`;
+                state.total += data.amt;
                 state.count++;
-            } else { cell.onclick = () => openModal(i); }
+            } else {
+                cell.onclick = () => openModal(i);
+            }
             grid.appendChild(cell);
         }
+    }
+
+    // 2. 初始化其他 UI 資訊
+    function init() {
+        buildGrid();
+        document.getElementById('wishText').value = localStorage.getItem('save365_wish') || "";
+        document.getElementById('targetAmt').value = localStorage.getItem('save365_target') || "";
         updateUI();
         checkBadges(false);
     }
@@ -156,15 +186,16 @@
         document.getElementById('modalQuote').innerText = `"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"`;
         document.getElementById('modalTip').innerText = `💡 開運貼士：${TIPS[Math.floor(Math.random()*TIPS.length)]}`;
         
-        // 重置動畫並顯示
         const modal = document.getElementById('modal');
-        const card = modal.querySelector('.draw-card');
-        card.style.animation = 'none';
-        card.offsetHeight; /* 觸發重繪 */
-        card.style.animation = null;
+        const card = document.getElementById('cardElement');
         
         modal.style.display = 'flex';
-        document.getElementById('soundPop').play().catch(()=>{});
+        card.classList.remove('animate');
+        void card.offsetWidth; // 強制重繪
+        card.classList.add('animate');
+        
+        const s = document.getElementById('soundPop');
+        if(s) s.play().catch(()=>{});
     }
 
     function confirmDraw() {
@@ -174,28 +205,17 @@
         
         state.total += activeAmt;
         state.count++;
-        applyDoneStyle(document.getElementById(`cell-${activeDay}`), activeAmt, col);
+        
+        const el = document.getElementById(`cell-${activeDay}`);
+        el.classList.add('done');
+        el.style.backgroundColor = col;
+        el.innerText = `$${activeAmt}`;
+        el.onclick = null;
+
         updateUI();
         checkBadges(true);
-        document.getElementById('soundSuccess').play().catch(()=>{});
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    function resetPlan() {
-        if (confirm("⚠️ 注意！\n確定要重啟 365天存錢挑戰嗎？\n這將會清除所有紀錄。")) {
-            localStorage.removeItem('save365_vFinal');
-            state.history = {};
-            init();
-        }
-    }
-
-    function checkBadges(shouldCelebrate) {
-        const milestones = [10, 50, 100, 200, 365];
-        const badgeIds = ['m10', 'm50', 'm100', 'm200', 'm365'];
-        milestones.forEach((m, idx) => {
-            const badge = document.getElementById(badgeIds[idx]);
-            if (state.count >= m) {
-                if (!badge.classList.contains('active')) {
-                    badge.classList.add('active');
-                    if (shouldCelebrate) confetti({ particleCount: 150, spread: 70, origin: { y: 0.
-                    
+        
+        const s = document.getElementById('soundSuccess');
+        if(s) s.play().catch(()=>{});
+        
+        document.getElementB
