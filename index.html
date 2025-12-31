@@ -218,4 +218,55 @@
         const s = document.getElementById('soundSuccess');
         if(s) s.play().catch(()=>{});
         
-        document.getElementB
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function updateUI() {
+        const targetInput = document.getElementById('targetAmt').value;
+        const totalSaved = state.total;
+        const completedDays = state.count;
+
+        let percent = (targetInput > 0) ? 
+            Math.min(Math.round((totalSaved / targetInput) * 100), 100) : 
+            Math.min(Math.round((completedDays / 365) * 100), 100);
+        
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressPercent').innerText = percent + '%';
+        document.getElementById('currentTotal').innerText = totalSaved;
+        document.getElementById('dayCount').innerText = `${completedDays}/365`;
+    }
+
+    function checkBadges(shouldCelebrate) {
+        const milestones = [10, 50, 100, 200, 365];
+        const badgeIds = ['m10', 'm50', 'm100', 'm200', 'm365'];
+        milestones.forEach((m, idx) => {
+            const badge = document.getElementById(badgeIds[idx]);
+            if (state.count >= m) {
+                if (!badge.classList.contains('active')) {
+                    badge.classList.add('active');
+                    if (shouldCelebrate && typeof confetti === 'function') {
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    }
+                }
+            } else { badge.classList.remove('active'); }
+        });
+    }
+
+    function saveSettings() {
+        localStorage.setItem('save365_wish', document.getElementById('wishText').value);
+        localStorage.setItem('save365_target', document.getElementById('targetAmt').value);
+        updateUI();
+    }
+
+    function resetPlan() {
+        if (confirm("⚠️ 注意！確定要重啟嗎？這會清除所有紀錄。")) {
+            localStorage.removeItem('save365_vFinal');
+            init();
+        }
+    }
+
+    // 啟動程式
+    window.onload = init;
+</script>
+</body>
+</html>
