@@ -2,252 +2,150 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>365天幸運儲蓄計畫</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 365天多巴胺存錢挑戰 (音效版)</title>
     <style>
+        /* CSS 部分保持多巴胺風格 */
         :root {
-            --soft-blue: #e3f2fd;
-            --main-blue: #90caf9;
-            --deep-blue: #1e88e5;
-            --lucky-gold: #ffd700;
-            --bg: #f8fbff;
+            --pink: #FF6AD5; --yellow: #FFEA00; --cyan: #00E5FF;
+            --purple: #9262FF; --green: #69FFB4; --dark: #2D3436; --bg: #FFF9FB;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            margin: 0;
-            padding: 0;
-            color: #445;
-            -webkit-tap-highlight-color: transparent;
+        * { box-sizing: border-box; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
+        body { background-color: var(--bg); display: flex; justify-content: center; padding: 20px; }
+        .main-container {
+            background: white; width: 100%; max-width: 500px; border: 6px solid var(--dark);
+            border-radius: 40px; padding: 25px; box-shadow: 15px 15px 0px var(--pink);
         }
-
-        /* 頂部統計欄 */
-        .header-sticky {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 100;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-bottom: 1px solid var(--soft-blue);
-        }
-
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .header-top h1 { margin: 0; font-size: 1.3em; color: var(--deep-blue); }
-
-        .mute-btn {
-            background: var(--soft-blue); border: none; padding: 5px 12px;
-            border-radius: 10px; font-size: 1.1em; cursor: pointer;
-        }
-
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .stat-box { background: var(--bg); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid var(--soft-blue); }
-        .stat-box small { display: block; color: #889; font-size: 0.7em; }
-        .stat-box span { font-size: 1em; font-weight: bold; color: var(--deep-blue); }
-
-        /* 勵志文案區 */
-        #quote-display {
-            background: white; margin: 15px; padding: 15px; border-radius: 15px;
-            font-size: 0.95em; color: #567; line-height: 1.5; text-align: center;
-            border: 1px solid var(--soft-blue); min-height: 45px;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* 網格區 - 確保格子顯現 */
-        .grid-container { padding: 0 15px 120px 15px; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 手機版 4 行 */
-            gap: 12px;
-        }
-
-        @media (min-width: 600px) { .grid { grid-template-columns: repeat(8, 1fr); } }
-
-        .cell {
-            background: white;
-            border: 2px solid var(--main-blue); /* 加粗邊框確保看得到 */
-            border-radius: 16px;
-            padding: 15px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            transition: all 0.2s;
-        }
-
-        .cell .day-num { font-size: 0.65em; color: #99a; margin-bottom: 4px; font-weight: bold; }
-        .cell .amount { font-size: 1em; font-weight: 800; color: var(--deep-blue); }
-
-        /* 選中狀態 */
-        .cell.checked {
-            background: var(--deep-blue);
-            border-color: var(--deep-blue);
-            color: white !important;
-            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.4);
-        }
-        .cell.checked .day-num, .cell.checked .amount { color: white; }
-
-        /* 彈窗 */
-        #modal {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 30px; border-radius: 25px; z-index: 1000;
-            text-align: center; width: 80%; max-width: 300px; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
-        }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
-        
-        .reset-btn { margin: 30px auto; display: block; border: none; background: none; color: #ccc; font-size: 0.8em; }
+        .header h1 { text-align: center; font-size: 2rem; color: var(--purple); text-shadow: 3px 3px 0px var(--yellow); margin: 0 0 20px 0; }
+        .config-card { background: #fdfdfd; border: 4px solid var(--dark); border-radius: 20px; padding: 15px; margin-bottom: 25px; }
+        .input-row { display: flex; align-items: center; margin: 10px 0; font-weight: bold; }
+        input { border: none; border-bottom: 3px dashed var(--pink); flex: 1; padding: 5px; font-size: 1.1rem; outline: none; background: transparent; }
+        .stats { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; }
+        .bar-container { height: 40px; background: #eee; border: 4px solid var(--dark); border-radius: 20px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--green), var(--yellow), var(--pink)); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .percent-label { position: absolute; width: 100%; text-align: center; top: 6px; font-weight: 900; font-size: 1.2rem; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .cell { aspect-ratio: 1; background: white; border: 2px solid var(--dark); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .cell:hover { transform: scale(1.1) rotate(3deg); background: var(--yellow); }
+        .cell.done { border-color: transparent; color: white; cursor: default; box-shadow: inset 3px 3px rgba(0,0,0,0.15); }
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .draw-card { background: white; width: 320px; padding: 30px; border-radius: 40px; border: 6px solid var(--dark); text-align: center; animation: cardIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes cardIn { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0); } }
+        .amt-display { font-size: 5rem; font-weight: 900; color: var(--pink); margin: 15px 0; text-shadow: 4px 4px 0px var(--yellow); }
+        .card-quote { font-style: italic; color: #555; margin-bottom: 20px; line-height: 1.5; border-top: 2px solid #eee; padding-top: 15px; }
+        .card-tip { background: #F0F7FF; padding: 12px; border-radius: 15px; font-size: 0.9rem; color: #333; border: 2px dashed var(--cyan); }
+        .btn-confirm { margin-top: 25px; width: 100%; padding: 15px; background: var(--green); border: 4px solid var(--dark); border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 6px 6px 0px var(--dark); }
+        .btn-confirm:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0px var(--dark); }
     </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay"></div>
+<div class="main-container">
+    <div class="header"><h1>🌈 365天存錢挑戰</h1></div>
+    <div class="config-card">
+        <div class="input-row"><label>🎈 願望：</label><input type="text" id="wishText" placeholder="寫下你的目標..." oninput="saveSettings()"></div>
+        <div class="input-row"><label>🎯 目標：</label><input type="number" id="targetAmt" value="10000" oninput="saveSettings()"><span>元</span></div>
+    </div>
+    <div class="progress-section">
+        <div class="stats"><span>累積: $<span id="currentTotal">0</span></span><span id="dayCount">已達成: 0/365</span></div>
+        <div class="bar-container"><div class="bar-fill" id="progressBar"></div><div class="percent-label" id="progressPercent">0%</div></div>
+    </div>
+    <div class="grid" id="gridContainer"></div>
+</div>
+
 <div id="modal">
-    <h2 style="color:var(--lucky-gold)">✨ 達成里程碑！</h2>
-    <p id="milestone-msg"></p>
-    <button onclick="closeModal()" style="background:var(--deep-blue); color:white; border:none; padding:12px 30px; border-radius:12px; width:100%">收下好運</button>
-</div>
-
-<div class="header-sticky">
-    <div class="header-top">
-        <h1>💎 365天幸運挑戰</h1>
-        <button class="mute-btn" id="mute-btn" onclick="toggleMute()">🔊</button>
-    </div>
-    <div class="stats">
-        <div class="stat-box"><small>累積金額</small><span id="total-money">$ 0</span></div>
-        <div class="stat-box"><small>已存天數</small><span id="total-days">0</span></div>
-        <div class="stat-box"><small>進度</small><span id="percent">0%</span></div>
+    <div class="draw-card">
+        <div style="font-size: 1.1rem; font-weight: bold; color: var(--purple);">✨ 今日挑戰金額 ✨</div>
+        <div class="amt-display" id="modalAmt">$0</div>
+        <div class="card-quote" id="modalQuote">"語錄讀取中..."</div>
+        <div class="card-tip" id="modalTip">💡 開運小撇步</div>
+        <button class="btn-confirm" onclick="confirmDraw()">存入錢包並紀錄！</button>
     </div>
 </div>
 
-<div id="quote-display">點擊格子開啟今日好運 ✨</div>
-
-<div class="grid-container">
-    <div class="grid" id="grid"></div>
-    <button class="reset-btn" onclick="reset()">重置所有紀錄</button>
-</div>
+<audio id="soundPop" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+<audio id="soundSuccess" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"></audio>
 
 <script>
-    const quotes = [
-        "你值得擁有所有美好的事物，包括這筆存款帶來的自由。",
-        "今天的自律，是為了明天能隨心所欲地說『好』。",
-        "幸運小撇步：今天對鏡子裡的自己微笑，好事即將發生。",
-        "小小的硬幣是大大的底氣，你正在親手打造安全感。",
-        "幸運小撇步：深呼吸三次，感受這一刻的寧靜與豐盈。",
-        "未來的你，一定會感謝現在這個閃閃發光的自己。",
-        "每一分存下的錢，都是給未來自己的一封溫暖情書。",
-        "幸運小撇步：喝一杯溫水，感謝自己今天的付出。",
-        "所有的幸運，都是累積已久的善良與努力。"
-    ];
+    const QUOTES = ["存下的每一塊錢都是未來的自由！", "今天的你，比昨天更富有！", "錢不會消失，只是變成了你喜歡的樣子。", "財富是給有耐心的人的禮物。"];
+    const TIPS = ["穿件亮色的衣服，心情好財運自然來！", "整理一下錢包裡的收據吧。", "對身邊的人微笑，好運會加倍。", "摸摸自己的存錢筒，給它一點力量。"];
+    const COLORS = ['#FF6AD5', '#FFEA00', '#00E5FF', '#9262FF', '#69FFB4', '#FF9A3C'];
 
-    const milestones = {
-        10: "太棒了！10 天的堅持已經讓習慣成自然。",
-        50: "50 天達成！你正在建立穩固的財富地基。",
-        100: "百日慶祝！你的毅力讓人佩服。",
-        365: "🎉 奇蹟達成！你是最棒的挑戰者！"
-    };
+    let state = { total: 0, count: 0, history: JSON.parse(localStorage.getItem('save365_data')) || {} };
+    let activeDay = null, activeAmt = 0;
 
-    let isMuted = false;
-    let audioCtx = null;
-
-    // 統一 Key 名稱為 'LUCKY_V5' 避免衝突
-    let amountPool = JSON.parse(localStorage.getItem('LUCKY_V5_POOL'));
-    if (!amountPool) {
-        amountPool = Array.from({length: 365}, () => Math.floor(Math.random() * (500 - 50 + 1)) + 50);
-        localStorage.setItem('LUCKY_V5_POOL', JSON.stringify(amountPool));
-    }
-
-    let savedIndices = JSON.parse(localStorage.getItem('LUCKY_V5_SAVED')) || [];
-
-    function playSfx(type) {
-        if (isMuted) return;
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if (type === 'click') {
-            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } else {
-            osc.frequency.setValueAtTime(523, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1046, audioCtx.currentTime + 0.5);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-        }
-    }
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
-    }
-
-    function render() {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        let total = 0;
-
-        amountPool.forEach((amt, index) => {
-            const isSaved = savedIndices.includes(index);
+    function init() {
+        document.getElementById('wishText').value = localStorage.getItem('save365_wish') || "";
+        document.getElementById('targetAmt').value = localStorage.getItem('save365_target') || 10000;
+        const grid = document.getElementById('gridContainer');
+        for (let i = 1; i <= 365; i++) {
             const cell = document.createElement('div');
-            cell.className = `cell ${isSaved ? 'checked' : ''}`;
-            cell.innerHTML = `<div class="day-num">${index + 1}</div><div class="amount">$${amt}</div>`;
-            if (isSaved) total += amt;
-            cell.onclick = () => toggle(index);
+            cell.className = 'cell';
+            cell.id = `cell-${i}`;
+            cell.innerText = i;
+            if (state.history[i]) {
+                applyDoneStyle(cell, state.history[i].amt, state.history[i].color);
+                state.total += state.history[i].amt;
+                state.count++;
+            } else { cell.onclick = () => openModal(i); }
             grid.appendChild(cell);
-        });
-
-        document.getElementById('total-money').innerText = `$${total.toLocaleString()}`;
-        document.getElementById('total-days').innerText = savedIndices.length;
-        document.getElementById('percent').innerText = `${((savedIndices.length/365)*100).toFixed(0)}%`;
-    }
-
-    function toggle(index) {
-        const idx = savedIndices.indexOf(index);
-        if (idx > -1) {
-            savedIndices.splice(idx, 1);
-        } else {
-            savedIndices.push(index);
-            playSfx('click');
-            checkMilestone(savedIndices.length);
-            const q = quotes[Math.floor(Math.random() * quotes.length)];
-            document.getElementById('quote-display').innerText = "✨ " + q;
-            if (window.navigator.vibrate) window.navigator.vibrate(20);
         }
-        localStorage.setItem('LUCKY_V5_SAVED', JSON.stringify(savedIndices));
-        render();
+        updateUI();
     }
 
-    function checkMilestone(count) {
-        if (milestones[count]) {
-            playSfx('win');
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.8 } });
-            document.getElementById('milestone-msg').innerText = milestones[count];
-            document.getElementById('modal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
+    function openModal(day) {
+        activeDay = day;
+        activeAmt = Math.floor(Math.random() * 50) + 1;
+        document.getElementById('modalAmt').innerText = `$${activeAmt}`;
+        document.getElementById('modalQuote').innerText = `"${QUOTES[Math.floor(Math.random()*QUOTES.length)]}"`;
+        document.getElementById('modalTip').innerText = `💡 開運貼士：${TIPS[Math.floor(Math.random()*TIPS.length)]}`;
+        
+        // 播放驚喜音效
+        document.getElementById('soundPop').currentTime = 0;
+        document.getElementById('soundPop').play();
+        
+        document.getElementById('modal').style.display = 'flex';
     }
 
-    function closeModal() {
+    function confirmDraw() {
+        const randomCol = COLORS[Math.floor(Math.random()*COLORS.length)];
+        state.history[activeDay] = { amt: activeAmt, color: randomCol };
+        state.total += activeAmt;
+        state.count++;
+        localStorage.setItem('save365_data', JSON.stringify(state.history));
+        applyDoneStyle(document.getElementById(`cell-${activeDay}`), activeAmt, randomCol);
+        updateUI();
+        
+        // 播放成功音效
+        document.getElementById('soundSuccess').currentTime = 0;
+        document.getElementById('soundSuccess').play();
+        
         document.getElementById('modal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
     }
 
-    function reset() {
-        if (confirm("確定要清除所有進度並重新生成隨機金額嗎？")) {
-            localStorage.clear();
-            location.reload();
-        }
+    function applyDoneStyle(el, amt, color) {
+        el.classList.add('done');
+        el.style.backgroundColor = color;
+        el.innerText = `$${amt}`;
+        el.onclick = null;
     }
 
-    render();
+    function updateUI() {
+        const target = parseInt(document.getElementById('targetAmt').value) || 1;
+        const percent = Math.min(Math.round((state.total / target) * 100), 100);
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressPercent').innerText = percent + '%';
+        document.getElementById('currentTotal').innerText = state.total;
+        document.getElementById('dayCount').innerText = `已達成: ${state.count}/365`;
+    }
+
+    function saveSettings() {
+        localStorage.setItem('save365_wish', document.getElementById('wishText').value);
+        localStorage.setItem('save365_target', document.getElementById('targetAmt').value);
+        updateUI();
+    }
+
+    init();
 </script>
-
 </body>
 </html>
